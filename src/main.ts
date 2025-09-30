@@ -19,7 +19,10 @@ async function bootstrap() {
   app.useGlobalInterceptors(new TransformInterceptor());
 
   // CORS
-  app.enableCors();
+  app.enableCors({
+    origin: 'https://ai-powered-tools.netlify.app',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  });
 
   await app.listen(process.env.PORT ?? 3000);
   console.log(`Application is running on: ${await app.getUrl()}`);

@@ -19,11 +19,11 @@ export class ReceiptService {
     try {
       this.logger.debug('Starting receipt parsing with OpenAI Vision');
 
-      // Конвертируем буфер в base64
+      // Convert the buffer to base64
       const base64Image = imageBuffer.toString('base64');
       const imageUrl = `data:${mimeType};base64,${base64Image}`;
 
-      // Создаем промпт для анализа чека
+      // Create a prompt for analyzing the receipt
       const prompt = `
 Analyze the receipt image and extract the following information in JSON format:
 {
@@ -40,17 +40,12 @@ Analyze the receipt image and extract the following information in JSON format:
 
 Important:
 
-Return ONLY valid JSON, without any code fences or explanations
-
-Prices must be numbers (not strings)
-
-If some information is missing, use reasonable default values
-
-For the date, use the YYYY-MM-DD format
-
-Item descriptions should be clear and concise
-
-If the image does not contain information similar to a receipt, return an appropriate message as a string
+Return ONLY valid JSON, without any code fences or explanations.
+Prices must be numbers (not strings).
+If some information is missing, use reasonable default values.
+For the date, use the YYYY-MM-DD format.
+Item descriptions should be clear and concise.
+If the image does not contain information similar to a receipt, return an appropriate message as a string.
 `;
 
       const response = await this.openAiService.createChatCompletion(
@@ -74,8 +69,8 @@ If the image does not contain information similar to a receipt, return an approp
         'gpt-4o-mini',
       );
 
-      // Сохраняем ответ в файл
-      await this.fileService.saveResponse(response);
+      // Save the response to a file
+      await this.fileService.saveResponse(response, 'receipt');
 
       const content = response.choices[0].message.content;
 
@@ -85,7 +80,7 @@ If the image does not contain information similar to a receipt, return an approp
 
       this.logger.debug(`OpenAI response: ${content}`);
 
-      // Парсим JSON ответ
+      // Parse the JSON response
       let parsedResult: ReceiptResponseDto;
 
       try {
@@ -96,7 +91,7 @@ If the image does not contain information similar to a receipt, return an approp
           parseError,
         );
 
-        // Попытка извлечь JSON из текста, если он обернут в дополнительный текст
+        // Try to extract JSON from the text if it's wrapped in additional text
         const jsonMatch = content.match(/\{[\s\S]*}/);
         if (jsonMatch) {
           parsedResult = JSON.parse(jsonMatch[0]);
@@ -105,7 +100,7 @@ If the image does not contain information similar to a receipt, return an approp
         }
       }
 
-      // Валидация результата
+      // Validate the result
       this.validateReceiptData(parsedResult);
 
       this.logger.debug('Receipt parsed successfully');
@@ -116,7 +111,7 @@ If the image does not contain information similar to a receipt, return an approp
     }
   }
 
-  private validateReceiptData(data: any): void {
+  private validateReceiptData(data: ReceiptResponseDto): void {
     if (!data) {
       throw new Error('Invalid receipt data structure');
     }

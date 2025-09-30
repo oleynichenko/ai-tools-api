@@ -2,10 +2,9 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { UsersModule } from './users/users.module';
-import { AuthModule } from './auth/auth.module';
 import { OpenAiModule } from './openai/openai.module';
 import { ReceiptModule } from './receipt/receipt.module';
+import { AudioModule } from './audio/audio.module';
 import openaiConfig from './config/openai.config';
 
 @Module({
@@ -14,10 +13,9 @@ import openaiConfig from './config/openai.config';
       isGlobal: true,
       load: [openaiConfig],
     }),
-    UsersModule,
-    AuthModule,
     OpenAiModule,
     ReceiptModule,
+    AudioModule,
   ],
   controllers: [AppController],
   providers: [AppService],
